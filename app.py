@@ -29,7 +29,7 @@ def info():
     if parsed.scheme!='https' or (parsed.hostname or '').lower() not in ('youtube.com','www.youtube.com','youtu.be','m.youtube.com'):
         return jsonify(error='Invalid YouTube URL'),400
     try:
-        with yt_dlp.YoutubeDL({'quiet':True,'skip_download':True,'noplaylist':True,'socket_timeout':12}) as ydl:
+        with yt_dlp.YoutubeDL({'quiet':True,'skip_download':True,'noplaylist':True,'socket_timeout':12,'js_runtimes':{'node':{}}}) as ydl:
             meta=ydl.extract_info(url,download=False)
         return jsonify(title=meta.get('title'),duration=meta.get('duration'),id=meta.get('id'))
     except Exception:
@@ -53,7 +53,7 @@ def convert():
     try:
         opts={'quiet':True,'noplaylist':True,'socket_timeout':15,
               'outtmpl':str(work/'media.%(ext)s'),'max_filesize':300*1024*1024,
-              'ffmpeg_location':FFMPEG,'format':'bestaudio/best' if fmt=='mp3' else 'best[height<=720]/best'}
+              'ffmpeg_location':FFMPEG,'js_runtimes':{'node':{}},'format':'bestaudio/best' if fmt=='mp3' else 'best[height<=720]/best'}
         if fmt=='mp3':
             opts['postprocessors']=[{'key':'FFmpegExtractAudio','preferredcodec':'mp3','preferredquality':'192'}]
         with yt_dlp.YoutubeDL(opts) as ydl:
